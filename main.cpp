@@ -1,4 +1,4 @@
-// Stage 2: store the initial cars in a deque and display the lane.
+// Stage 3: perform and display one randomly selected time period.
 #include "Car.h"
 
 #include <cstdlib>
@@ -7,6 +7,7 @@
 #include <iostream>
 
 const int INITIAL_QUEUE_SIZE = 2;
+const int PAY_PROBABILITY = 55;
 
 void displayQueue(std::deque<Car>& tollLane) {
     if (tollLane.empty()) {
@@ -29,6 +30,21 @@ int main() {
     }
 
     std::cout << "Initial queue:\n";
+    displayQueue(tollLane);
+
+    std::cout << "\nTime: 1 Operation: ";
+    if (std::rand() % 100 < PAY_PROBABILITY) {
+        Car paidCar = tollLane.front();
+        tollLane.pop_front();
+        std::cout << "Car paid: ";
+        paidCar.print();
+    } else {
+        tollLane.push_back(Car());
+        std::cout << "Joined lane: ";
+        tollLane.back().print();
+    }
+
+    std::cout << "Queue:\n";
     displayQueue(tollLane);
     return 0;
 }

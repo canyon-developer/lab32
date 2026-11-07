@@ -1,4 +1,4 @@
-// Stage 3: perform and display one randomly selected time period.
+// Stage 4: repeat toll-lane operations until the deque is empty.
 #include "Car.h"
 
 #include <cstdlib>
@@ -32,19 +32,27 @@ int main() {
     std::cout << "Initial queue:\n";
     displayQueue(tollLane);
 
-    std::cout << "\nTime: 1 Operation: ";
-    if (std::rand() % 100 < PAY_PROBABILITY) {
-        Car paidCar = tollLane.front();
-        tollLane.pop_front();
-        std::cout << "Car paid: ";
-        paidCar.print();
-    } else {
-        tollLane.push_back(Car());
-        std::cout << "Joined lane: ";
-        tollLane.back().print();
+    int timePeriod = 0;
+    while (!tollLane.empty()) {
+        ++timePeriod;
+        std::cout << "\nTime: " << timePeriod << " Operation: ";
+
+        if (std::rand() % 100 < PAY_PROBABILITY) {
+            Car paidCar = tollLane.front();
+            tollLane.pop_front();
+            std::cout << "Car paid: ";
+            paidCar.print();
+        } else {
+            tollLane.push_back(Car());
+            std::cout << "Joined lane: ";
+            tollLane.back().print();
+        }
+
+        std::cout << "Queue:\n";
+        displayQueue(tollLane);
     }
 
-    std::cout << "Queue:\n";
-    displayQueue(tollLane);
+    std::cout << "\nThe queue emptied after " << timePeriod
+              << " time periods.\n";
     return 0;
 }

@@ -1,69 +1,28 @@
-// checkout from lab32
+// Lab 33, step 1: validate an array of deque<Car> lanes.
 #include "Car.h"
 
-#include <cstdlib>
-#include <ctime>
 #include <deque>
 #include <iostream>
 
-const int INITIAL_QUEUE_SIZE = 2;
-const int PAY_PROBABILITY = 55;
-
-void displayQueue(std::deque<Car>& tollLane) {
-    if (tollLane.empty()) {
-        std::cout << "    Empty\n";
-        return;
-    }
-
-    for (Car& car : tollLane) {
-        std::cout << "    ";
-        car.print();
-    }
-}
-
-void fillInitialQueue(std::deque<Car>& tollLane) {
-    for (int i = 0; i < INITIAL_QUEUE_SIZE; ++i) {
-        tollLane.push_back(Car());
-    }
-}
-
-void performTimePeriod(std::deque<Car>& tollLane, int timePeriod) {
-    std::cout << "\nTime: " << timePeriod << " Operation: ";
-
-    const bool carPays = std::rand() % 100 < PAY_PROBABILITY;
-    if (carPays) {
-        Car paidCar = tollLane.front();
-        tollLane.pop_front();
-
-        std::cout << "Car paid: ";
-        paidCar.print();
-    } else {
-        tollLane.push_back(Car());
-
-        std::cout << "Joined lane: ";
-        tollLane.back().print();
-    }
-
-    std::cout << "Queue:\n";
-    displayQueue(tollLane);
-}
+const int LANE_COUNT = 4;
 
 int main() {
-    std::srand(static_cast<unsigned int>(std::time(nullptr)));
+    std::deque<Car> lanes[LANE_COUNT];
 
-    std::deque<Car> tollLane;
-    fillInitialQueue(tollLane);
+    // Exercise both ends of several deques in the array.
+    lanes[0].push_back(Car());
+    lanes[0].push_back(Car());
+    lanes[1].push_front(Car());
+    lanes[2].push_back(Car());
+    lanes[3].push_back(Car());
 
-    std::cout << "Initial queue:\n";
-    displayQueue(tollLane);
+    lanes[0].pop_front();
+    lanes[2].pop_back();
 
-    int timePeriod = 0;
-    while (!tollLane.empty()) {
-        ++timePeriod;
-        performTimePeriod(tollLane, timePeriod);
+    for (int lane = 0; lane < LANE_COUNT; ++lane) {
+        std::cout << "Lane " << lane + 1 << " contains "
+                  << lanes[lane].size() << " car(s).\n";
     }
 
-    std::cout << "\nThis simulation ran " << timePeriod
-              << " cycles until the queue was empty.\n";
     return 0;
 }

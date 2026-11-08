@@ -1,4 +1,4 @@
-// Stage 5: completed toll-booth deque simulation.
+// checkout from lab32
 #include "Car.h"
 
 #include <cstdlib>

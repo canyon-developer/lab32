@@ -1,4 +1,4 @@
-// Lab 33, step 4: run a 50/50 pay-or-join simulation on all lanes.
+// Lab 33, step 5: isolate and test rear-car lane switching.
 #include "Car.h"
 
 #include <cstdlib>
@@ -8,8 +8,6 @@
 
 const int LANE_COUNT = 4;
 const int INITIAL_CARS_PER_LANE = 2;
-const int SIMULATION_PERIODS = 20;
-const int PAY_PROBABILITY = 50;
 
 void displayPlaza(std::deque<Car> lanes[]) {
     for (int lane = 0; lane < LANE_COUNT; ++lane) {
@@ -35,21 +33,25 @@ void fillInitialPlaza(std::deque<Car> lanes[]) {
     }
 }
 
-void performLaneOperation(std::deque<Car>& lane, int laneNumber) {
-    const bool pay = std::rand() % 100 < PAY_PROBABILITY;
+int chooseDifferentLane(int originalLane) {
+    // The offset is at least one, so the result cannot be the original lane.
+    const int offset = std::rand() % (LANE_COUNT - 1) + 1;
+    return (originalLane + offset) % LANE_COUNT;
+}
 
-    if (pay && !lane.empty()) {
-        Car paidCar = lane.front();
-        lane.pop_front();
-        std::cout << "Lane: " << laneNumber << " Paid: ";
-        paidCar.print();
-    } else if (!pay) {
-        lane.push_back(Car());
-        std::cout << "Lane: " << laneNumber << " Joined: ";
-        lane.back().print();
-    } else {
-        std::cout << "Lane: " << laneNumber << " No car joined.\n";
+void switchRearCar(std::deque<Car> lanes[], int originalLane) {
+    if (lanes[originalLane].empty()) {
+        return;
     }
+
+    const int newLane = chooseDifferentLane(originalLane);
+    Car switchingCar = lanes[originalLane].back();
+    lanes[originalLane].pop_back();
+    lanes[newLane].push_back(switchingCar);
+
+    std::cout << "Lane: " << originalLane + 1 << " Switched to Lane "
+              << newLane + 1 << ": ";
+    switchingCar.print();
 }
 
 int main() {
@@ -58,16 +60,15 @@ int main() {
     std::deque<Car> lanes[LANE_COUNT];
     fillInitialPlaza(lanes);
 
-    std::cout << "Initial queue:\n";
+    std::cout << "Before switching:\n";
     displayPlaza(lanes);
 
-    for (int time = 1; time <= SIMULATION_PERIODS; ++time) {
-        std::cout << "\nTime: " << time << '\n';
-        for (int lane = 0; lane < LANE_COUNT; ++lane) {
-            performLaneOperation(lanes[lane], lane + 1);
-        }
-        displayPlaza(lanes);
+    std::cout << "\nSwitch operations:\n";
+    for (int lane = 0; lane < LANE_COUNT; ++lane) {
+        switchRearCar(lanes, lane);
     }
 
+    std::cout << "\nAfter switching:\n";
+    displayPlaza(lanes);
     return 0;
 }

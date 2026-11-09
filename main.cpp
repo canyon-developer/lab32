@@ -1,4 +1,4 @@
-// Lab 33, step 5: isolate and test rear-car lane switching.
+// Lab 33, step 6: integrate all three operations into the simulation.
 #include "Car.h"
 
 #include <cstdlib>
@@ -8,6 +8,11 @@
 
 const int LANE_COUNT = 4;
 const int INITIAL_CARS_PER_LANE = 2;
+const int SIMULATION_PERIODS = 20;
+const int PAY_PROBABILITY = 46;
+const int JOIN_PROBABILITY = 39;
+const int SWITCH_PROBABILITY = 15;
+const int EMPTY_JOIN_PROBABILITY = 50;
 
 void displayPlaza(std::deque<Car> lanes[]) {
     for (int lane = 0; lane < LANE_COUNT; ++lane) {
@@ -34,24 +39,41 @@ void fillInitialPlaza(std::deque<Car> lanes[]) {
 }
 
 int chooseDifferentLane(int originalLane) {
-    // The offset is at least one, so the result cannot be the original lane.
     const int offset = std::rand() % (LANE_COUNT - 1) + 1;
     return (originalLane + offset) % LANE_COUNT;
 }
 
-void switchRearCar(std::deque<Car> lanes[], int originalLane) {
-    if (lanes[originalLane].empty()) {
+void performLaneOperation(std::deque<Car> lanes[], int lane) {
+    if (lanes[lane].empty()) {
+        if (std::rand() % 100 < EMPTY_JOIN_PROBABILITY) {
+            lanes[lane].push_back(Car());
+            std::cout << "Lane: " << lane + 1 << " Joined: ";
+            lanes[lane].back().print();
+        } else {
+            std::cout << "Lane: " << lane + 1 << " No car joined.\n";
+        }
         return;
     }
 
-    const int newLane = chooseDifferentLane(originalLane);
-    Car switchingCar = lanes[originalLane].back();
-    lanes[originalLane].pop_back();
-    lanes[newLane].push_back(switchingCar);
-
-    std::cout << "Lane: " << originalLane + 1 << " Switched to Lane "
-              << newLane + 1 << ": ";
-    switchingCar.print();
+    const int operation = std::rand() % 100;
+    if (operation < PAY_PROBABILITY) {
+        Car paidCar = lanes[lane].front();
+        lanes[lane].pop_front();
+        std::cout << "Lane: " << lane + 1 << " Paid: ";
+        paidCar.print();
+    } else if (operation < PAY_PROBABILITY + JOIN_PROBABILITY) {
+        lanes[lane].push_back(Car());
+        std::cout << "Lane: " << lane + 1 << " Joined: ";
+        lanes[lane].back().print();
+    } else {
+        const int newLane = chooseDifferentLane(lane);
+        Car switchingCar = lanes[lane].back();
+        lanes[lane].pop_back();
+        lanes[newLane].push_back(switchingCar);
+        std::cout << "Lane: " << lane + 1 << " Switched to Lane "
+                  << newLane + 1 << ": ";
+        switchingCar.print();
+    }
 }
 
 int main() {
@@ -60,15 +82,16 @@ int main() {
     std::deque<Car> lanes[LANE_COUNT];
     fillInitialPlaza(lanes);
 
-    std::cout << "Before switching:\n";
+    std::cout << "Initial queue:\n";
     displayPlaza(lanes);
 
-    std::cout << "\nSwitch operations:\n";
-    for (int lane = 0; lane < LANE_COUNT; ++lane) {
-        switchRearCar(lanes, lane);
+    for (int time = 1; time <= SIMULATION_PERIODS; ++time) {
+        std::cout << "\nTime: " << time << '\n';
+        for (int lane = 0; lane < LANE_COUNT; ++lane) {
+            performLaneOperation(lanes, lane);
+        }
+        displayPlaza(lanes);
     }
 
-    std::cout << "\nAfter switching:\n";
-    displayPlaza(lanes);
     return 0;
 }

@@ -1,14 +1,17 @@
-// Lab 33, step 2: add helpers for working with the toll plaza.
+// Lab 33, step 3: populate every toll lane before the simulation.
 #include "Car.h"
 
+#include <cstdlib>
+#include <ctime>
 #include <deque>
 #include <iostream>
 
 const int LANE_COUNT = 4;
+const int INITIAL_CARS_PER_LANE = 2;
 
 void displayPlaza(std::deque<Car> lanes[]) {
     for (int lane = 0; lane < LANE_COUNT; ++lane) {
-        std::cout << "Lane " << lane + 1 << " Queue:";
+        std::cout << "Lane " << lane + 1 << ":";
 
         if (lanes[lane].empty()) {
             std::cout << " empty\n";
@@ -23,18 +26,21 @@ void displayPlaza(std::deque<Car> lanes[]) {
     }
 }
 
-int main() {
-    std::deque<Car> lanes[LANE_COUNT];
-
+void fillInitialPlaza(std::deque<Car> lanes[]) {
     for (int lane = 0; lane < LANE_COUNT; ++lane) {
-        lanes[lane].push_back(Car());
+        for (int car = 0; car < INITIAL_CARS_PER_LANE; ++car) {
+            lanes[lane].push_back(Car());
+        }
     }
+}
 
-    // Validate that a rear car can be removed from one lane and added to another.
-    Car switchingCar = lanes[0].back();
-    lanes[0].pop_back();
-    lanes[2].push_back(switchingCar);
+int main() {
+    std::srand(static_cast<unsigned int>(std::time(nullptr)));
 
+    std::deque<Car> lanes[LANE_COUNT];
+    fillInitialPlaza(lanes);
+
+    std::cout << "Initial queue:\n";
     displayPlaza(lanes);
     return 0;
 }
